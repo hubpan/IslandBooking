@@ -33,12 +33,12 @@ public class ReservationController {
     @PostMapping()
     public BookingDTO reserve(
             @ApiParam(
-                    name =  "request",
+                    name = "request",
                     value = "reservation request",
                     required = true)
             @Valid
             @RequestBody
-            ReservationRequestDTO request) {
+                    ReservationRequestDTO request) {
 
         Booking booking = reservationService.reserveByEmail(
                 request.getCampSiteId(),
@@ -59,7 +59,7 @@ public class ReservationController {
     @GetMapping("/{idOrCode}")
     public BookingDTO findById(
             @ApiParam(
-                    name =  "idOrCode",
+                    name = "idOrCode",
                     value = "id or code that uniquely identify a booking",
                     required = true)
             @PathVariable String idOrCode) {
@@ -70,13 +70,13 @@ public class ReservationController {
     @PostMapping("/{idOrCode}")
     public BookingDTO updateById(
             @ApiParam(
-                    name =  "idOrCode",
+                    name = "idOrCode",
                     value = "id or code that uniquely identify a booking",
                     required = true)
             @PathVariable String idOrCode,
             @Valid
             @RequestBody
-            BookingUpdateRequestDTO request) {
+                    BookingUpdateRequestDTO request) {
         Booking existing = retrieveBookingByIdOrCode(idOrCode);
 
         if (existing.getCampsite().getId() != request.getCampSiteId()) {
@@ -93,7 +93,7 @@ public class ReservationController {
     @DeleteMapping("/{idOrCode}")
     public void deleteById(
             @ApiParam(
-                    name =  "idOrCode",
+                    name = "idOrCode",
                     value = "id or code that uniquely identify a booking",
                     required = true)
             @PathVariable String idOrCode) {
@@ -102,14 +102,14 @@ public class ReservationController {
     }
 
     protected Booking retrieveBookingByIdOrCode(String idOrCode) {
-
+        Long idLong = null;
         try {
-            long id = Long.parseLong(idOrCode);
-            return reservationService.findById(id);
-        } catch (Exception ignored) {
+            idLong = Long.parseLong(idOrCode);
+        } catch (NumberFormatException ignored) {
         }
-
-        return reservationService.findByCode(idOrCode);
+        return idLong != null ?
+                reservationService.findById(idLong) :
+                reservationService.findByCode(idOrCode);
     }
 
 }
