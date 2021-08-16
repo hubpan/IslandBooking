@@ -1,0 +1,169 @@
+databaseChangeLog:
+  - preConditions:
+    - runningAs:
+        username: sa
+
+  - changeSet:
+      id:  2021-08-14-0000
+      author:  hpan
+      comment: creating entity tables
+      changes:
+        - createTable:
+            tableName: accounts
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+        - createTable:
+            tableName: campsites
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: bigint
+                  defaultValue: 0
+        - createTable:
+            tableName: bookings
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: from_ts
+                  type: TIMESTAMP
+              - column:
+                  name: to_ts
+                  type: TIMESTAMP
+              - column:
+                  name: code
+                  type: varchar(100)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: campsite_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: campsite_id
+            baseTableName: bookings
+            constraintName: fk_campsites_bookings
+            referencedColumnNames: id
+            referencedTableName: campsites
+        - addForeignKeyConstraint:
+            baseColumnNames: owner_id
+            baseTableName: bookings
+            constraintName: fk_accounts_bookings
+            referencedColumnNames: id
+            referencedTableName: accounts
+        - createIndex:
+            clustered:  true
+            columns:
+              - column:
+                  name: campsite_id
+              - column:
+                  name: from_ts
+              - column:
+                  name: to_ts
+                  descending: true
+            indexName:  idx_booking_camp_range
+            tableName:  bookings
+
+  - changeSet:
+      id:  2021-08-14-0010
+      author:  hpan
+      comment: adding dummy records
+      changes:
+        - loadData:
+            tableName: accounts
+            relativeToChangelogFile: true
+            file: seed/accounts.csv
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: first_name
+                  type: STRING
+              - column:
+                  name: last_name
+                  type: STRING
+              - column:
+                  name: email
+                  type: STRING
+        - loadData:
+            tableName: campsites
+            relativeToChangelogFile: true
+            file: seed/campsites.csv
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: name
+                  type: STRING
+        - loadData:
+            tableName: bookings
+            relativeToChangelogFile: true
+            file: seed/bookings.csv
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: from_ts
+                  type: DATE
+              - column:
+                  name: to_ts
+                  type: DATE
+              - column:
+                  name: code
+                  type: STRING
+              - column:
+                  name: campsite_id
+                  type: NUMERIC
+              - column:
+                  name: owner_id
+                  type: NUMERIC
